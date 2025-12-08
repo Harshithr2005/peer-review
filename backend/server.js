@@ -1,0 +1,27 @@
+const express = require('express');
+const app = express();
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const userRouter = require('./routes/userRouter');
+require('dotenv').config();
+const connectDB = require('./config/db');
+
+connectDB();
+
+app.use(cors({
+     origin: "http://localhost:5173",
+     methods: ["GET", "POST", "PUT", "DELETE"],
+     credentials: true
+}));
+app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
+
+app.use('/api/auth', userRouter);
+
+app.get('/', (req, res) => {
+     res.send("Hello Brother");
+})
+
+app.listen(3000);
