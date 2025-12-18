@@ -33,6 +33,10 @@ The platform enables  **teachers to create classrooms** ,  **students to submit 
 * Clean glassmorphism UI
 * Responsive design
 
+---
+
+
+
 ### 🧠 System Architecture
 
 ```
@@ -46,6 +50,10 @@ The platform enables  **teachers to create classrooms** ,  **students to submit 
 * Frontend handles UI and user interaction
 * Backend handles authentication, business logic, and CSV export
 * MongoDB stores users, rooms, projects, and reviews
+
+---
+
+
 
 ## 🛠️ Tech Stack
 
@@ -64,12 +72,20 @@ The platform enables  **teachers to create classrooms** ,  **students to submit 
 * JWT Authentication
 * bcrypt
 
+---
+
+
+
 ## 🔐 Authentication Flow
 
 * JWT token generated on login
 * Token stored in **HTTP cookies**
 * Middleware validates user on every protected route
 * Role-based authorization ensures correct access
+
+---
+
+
 
 ## 🔄 Real-Time Updates Strategy
 
@@ -135,6 +151,12 @@ npm install
 npm run dev
 ```
 
+
+
+---
+
+
+
 ### 🎓 Academic Relevance
 
 This project demonstrates:
@@ -146,6 +168,10 @@ This project demonstrates:
 * REST API design
 * UI/UX principles
 * Real-world problem solving
+
+---
+
+
 
 ### 👨‍💻 Author
 
