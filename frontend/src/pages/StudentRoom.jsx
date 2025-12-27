@@ -26,7 +26,7 @@ function StudentRoom() {
      }, []);
 
      let getRoomData = async () => {
-          let res = await fetch(`http://localhost:3000/admin/getRoomData/${roomID}`, {
+          let res = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/admin/getRoomData/${roomID}`, {
                credentials: 'include'
           });
 
@@ -54,7 +54,7 @@ function StudentRoom() {
                return;
           }
 
-          let res = await fetch(`http://localhost:3000/projects/add/${roomID}`, {
+          let res = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/projects/add/${roomID}`, {
                method: "POST",
                credentials: "include",
                headers: { 'Content-type': 'application/json' },

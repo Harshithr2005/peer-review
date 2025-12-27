@@ -11,7 +11,7 @@ function ProtectedRoute({ children, allowedRoles }) {
      }, []);
 
      const checkAuth = async () => {
-          let res = await fetch('http://localhost:3000/api/auth/validateUser', {
+          let res = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/auth/validateUser`, {
                method: 'GET',
                credentials: "include"
           });

@@ -20,7 +20,7 @@ function ForgotPassword() {
             return;
         }
 
-        let res = await fetch("http://localhost:3000/api/auth/updatePassword", {
+        let res = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/auth/updatePassword`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",

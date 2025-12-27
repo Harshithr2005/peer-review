@@ -35,7 +35,7 @@ function EvaluateForm({ project }) {
     }
 
     const addReview = async () => {
-        const res = await fetch(`http://localhost:3000/projects/addReview/${project._id}`, {
+        const res = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/projects/addReview/${project._id}`, {
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
@@ -59,7 +59,7 @@ function EvaluateForm({ project }) {
     }
 
     const getComments = async () => {
-        const res = await fetch(`http://localhost:3000/projects/getComments/${project._id}`, {
+        const res = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/projects/getComments/${project._id}`, {
             method: 'GET',
             credentials: 'include',
         });

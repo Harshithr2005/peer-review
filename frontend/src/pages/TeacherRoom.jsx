@@ -28,7 +28,7 @@ function ClassroomPage() {
   }, []);
 
   let getRoomData = async () => {
-    let res = await fetch(`http://localhost:3000/admin/getRoomData/${roomId}`, {
+    let res = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/admin/getRoomData/${roomId}`, {
       method: 'GET',
       credentials: 'include'
     });
@@ -46,7 +46,7 @@ function ClassroomPage() {
   let openRoom = async () => {
     setLoading(true);
 
-    let res = await fetch(`http://localhost:3000/admin/openRoom/${roomId}`, {
+    let res = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/admin/openRoom/${roomId}`, {
       method: 'GET',
       credentials: 'include'
     });
@@ -59,7 +59,7 @@ function ClassroomPage() {
 
   let closeRoom = async () => {
     setLoading(true);
-    let res = await fetch(`http://localhost:3000/admin/closeRoom/${roomId}`, {
+    let res = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/admin/closeRoom/${roomId}`, {
       method: 'GET',
       credentials: 'include'
     });

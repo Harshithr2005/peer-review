@@ -16,7 +16,7 @@ function ProjectInfo() {
     }, []);
 
     const getProjectInfo = async () => {
-        const res = await fetch(`http://localhost:3000/projects/getInfo/${projectID}`, {
+        const res = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/projects/getInfo/${projectID}`, {
             credentials: "include",
         })
 

@@ -14,7 +14,7 @@ function CreateRoom() {
      });
 
      const createRoom = async () => {
-          const res = await fetch('http://localhost:3000/admin/createRoom', {
+          const res = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/admin/createRoom`, {
                method: 'POST',
                credentials: "include",
                headers: { 'Content-Type': 'application/json' },

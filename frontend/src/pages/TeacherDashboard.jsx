@@ -19,7 +19,7 @@ function TeacherDashboard() {
      }, []);
 
      const getUser = async () => {
-          let res = await fetch('http://localhost:3000/api/auth/getData', {
+          let res = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/auth/getData`, {
                method: 'GET',
                credentials: 'include'
           });
@@ -33,7 +33,7 @@ function TeacherDashboard() {
      }
 
      const logout = async () => {
-          const res = await fetch('http://localhost:3000/api/auth/logoutUser', {
+          const res = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/auth/logoutUser`, {
                method: "GET",
                credentials: "include"
           });
