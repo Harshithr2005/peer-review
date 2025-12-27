@@ -12,8 +12,10 @@ const connectDB = require('./config/db');
 
 connectDB();
 
+const PORT = process.env.PORT || 5000;
+
 app.use(cors({
-     origin: "http://localhost:5173",
+     origin: process.env.FRONTEND_URL,
      methods: ["GET", "POST", "PUT", "DELETE"],
      credentials: true
 }));
@@ -33,4 +35,6 @@ app.get('/', (req, res) => {
      res.send("Hello Brother");
 });
 
-app.listen(3000);
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
