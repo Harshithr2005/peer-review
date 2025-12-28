@@ -6,6 +6,10 @@
             The platform enables  <b>teachers to create classrooms</b> ,  <b>students to submit projects</b> , and <b>teachers to evaluate projects</b> with structured feedback and marks.
 </div>
 
+<br>
+
+<hr />
+
 ## 🚀 Live Demo
 - 🌐 Frontend: [https://peer-review-system.vercel.app](https://student-peer-review-nu.vercel.app/)
 - 🔗 Backend: [https://peer-review-backend.onrender.com](https://peer-review-yyx3.onrender.com)
