@@ -3,7 +3,6 @@ const { generateAccessToken, generateRefreshToken, ACCESS_TOKEN_MAX_AGE_MS, REFR
 const userModel = require('../models/User');
 const roomModel = require('../models/Room');
 const crypto = require('crypto');
-const sendEmail = require("../utils/sendEmail");
 const logger = require('../utils/logger');
 
 const hashToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
@@ -47,10 +46,6 @@ const sanitizeUser = (user) => {
     delete safeUser.password;
     delete safeUser.refreshTokenHash;
     delete safeUser.refreshTokenExpires;
-    delete safeUser.resetPasswordToken;
-    delete safeUser.resetPasswordExpires;
-    delete safeUser.verificationToken;
-    delete safeUser.verificationTokenExpires;
     return safeUser;
 };
 
@@ -102,127 +97,11 @@ module.exports.registerUser = async (req, res) => {
 }
 
 
-module.exports.sendVerificationEmail = async (req, res) => {
-    try {
-        const { email } = req.body;
-
-        const user = await userModel.findOne({ email });
-
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: "Email not registered",
-            });
-        }
-
-        if (user.isVerified) {
-            return res.json({
-                success: false,
-                message: "User already verified",
-            });
-        }
-
-        // Generate token
-        const token = crypto.randomBytes(32).toString("hex");
-
-        // Set expiry (5 minutes)
-        user.verificationToken = token;
-        user.verificationTokenExpires = Date.now() + 5 * 60 * 1000;
-
-        await user.save();
-
-        // Send email
-        const subject = "Verify your email";
-
-        const link = `${process.env.FRONTEND_URL}/verify/email?token=${token}`;
-
-        const html = `
-                        <div style="font-family: Arial; padding: 20px;">
-                            <h2>Email Verification</h2>
-                            <p>Click below:</p>
-                            <a href="${link}" 
-                            style="padding:10px 15px; background:#4f46e5; color:white; text-decoration:none;">
-                            Verify Email
-                            </a>
-                        </div>
-                    `;
-
-        await sendEmail(user.email, subject, html);
-
-        return res.json({
-            success: true,
-            message: "Verification email sent",
-        });
-
-    } catch (err) {
-        logger.error("auth.verify-email.error", { error: err.message, stack: err.stack, requestId: req.id });
-        return res.status(500).json({
-            success: false,
-            message: "Internal Server Error",
-        });
-    }
-};
-
-module.exports.verifyUser = async (req, res) => {
-    try {
-        const { email, token } = req.body;
-
-        const user = await userModel.findOne({
-            verificationToken: token,
-            verificationTokenExpires: { $gt: Date.now() }
-        });
-
-        if (!user) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid token",
-            });
-        }
-
-        // ✅ Mark verified
-        user.isVerified = true;
-        user.verificationToken = undefined;
-        user.verificationTokenExpires = undefined;
-
-        await user.save();
-
-        // 📩 Welcome email
-        const subject = "Welcome to Peer Review Platform";
-
-        const html = `
-                        <h2>Welcome 🎉</h2>
-                        <p>Your email has been successfully verified.</p>
-                        <p>You can now login and start using the platform.</p>
-                    `;
-
-        await sendEmail(user.email, subject, html);
-
-        return res.json({
-            success: true,
-            message: "Email verified successfully",
-        });
-
-    } catch (err) {
-        logger.error("auth.verify-token.error", { error: err.message, stack: err.stack, requestId: req.id });
-        return res.status(500).json({
-            success: false,
-            message: "Internal Server Error",
-        });
-    }
-};
-
 module.exports.loginUser = async (req, res) => {
     try {
         let user = await userModel.findOne({ email: req.body.email });
 
         if (user) {
-            if (!user.isVerified) {
-                return res.json({
-                    auth: false,
-                    message: "Please verify your email first"
-                });
-            }
-
             const isMatch = await bcrypt.compare(req.body.password, user.password);
             if (isMatch) {
                 const accessToken = generateAccessToken(user);
@@ -247,102 +126,37 @@ module.exports.loginUser = async (req, res) => {
 
 module.exports.forgotPassword = async (req, res) => {
     try {
-        const { email } = req.body;
+        const { email, password, confirmPassword } = req.body;
 
-        const user = await userModel.findOne({ email });
-        if (user) {
-            const resetToken = crypto.randomBytes(32).toString("hex");
-            const resetTokenHash = hashToken(resetToken);
-
-            user.resetPasswordToken = resetTokenHash;
-            user.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // 10 min
-
-            await user.save();
-
-            const subject = "Reset your password";
-            const resetURL = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
-
-            const html = `
-                    <div style="font-family: Arial; padding: 20px;">
-                        <h2>Password Reset</h2>
-                        <p>You requested to reset your password.</p>
-                        <p>This link will expire in 10 minutes.</p>
-
-                        <a href="${resetURL}" 
-                        style="padding:10px 15px; background:#4f46e5; color:white; text-decoration:none; display:inline-block; margin-top:10px;">
-                            Reset Password
-                        </a>
-
-                        <p style="margin-top:20px; font-size:12px; color:gray;">
-                            If you did not request this, please ignore this email.
-                        </p>
-                    </div>
-                `;
-
-            await sendEmail(user.email, subject, html);
+        if (!email || !password || !confirmPassword) {
+            return res.status(400).json({ success: false, message: "Email and password are required" });
         }
 
-        res.json({ success: true, message: "Reset link has been sent." });
-    }
-    catch (err) {
-        logger.error("auth.forgot-password.error", { error: err.message, stack: err.stack, requestId: req.id });
-        res.status(500).json({ success: false, message: "Internal Server Error" });
-    }
-}
-
-module.exports.resetPassword = async (req, res) => {
-    try {
-        const { token, password } = req.body;
-
-        if (!token || !password) {
-            return res.status(400).json({ success: false, message: "Token and password are required" });
+        if (password !== confirmPassword) {
+            return res.status(400).json({ success: false, message: "Password and confirm password should be same" });
         }
 
-        const resetTokenHash = hashToken(token);
+        if (password.trim().length < 4) {
+            return res.status(400).json({ success: false, message: "Password should contain at least 4 characters" });
+        }
 
-        let user = await userModel.findOne({
-            resetPasswordToken: resetTokenHash,
-            resetPasswordExpires: { $gt: Date.now() }
-        });
+        const normalizedEmail = String(email).trim().toLowerCase();
+        const user = await userModel.findOne({ email: normalizedEmail });
 
         if (!user) {
-            return res.status(400).json({ success: false, message: "Invalid or expired reset token" });
+            return res.status(404).json({ success: false, message: "Email not registered" });
         }
 
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(password, salt);
-        user.resetPasswordToken = undefined;
-        user.resetPasswordExpires = undefined;
         user.refreshTokenHash = undefined;
         user.refreshTokenExpires = undefined;
-
         await user.save();
 
-        return res.status(200).json({ success: true, message: "Password updated successfully!" });
+        return res.status(200).json({ success: true, message: "Password updated successfully" });
     } catch (err) {
-        logger.error("auth.reset-password.error", { error: err.message, stack: err.stack, requestId: req.id });
-        res.status(500).json({ success: false, message: "Internal Server Error" });
-    }
-}
-
-module.exports.verifyResetToken = async (req, res) => {
-    try {
-        const { token } = req.params;
-        const resetTokenHash = hashToken(token);
-
-        const user = await userModel.findOne({
-            resetPasswordToken: resetTokenHash,
-            resetPasswordExpires: { $gt: Date.now() }
-        });
-
-        if (!user) {
-            return res.status(400).json({ success: false, message: "Invalid or expired reset token" });
-        }
-
-        return res.status(200).json({ success: true, message: "Token is valid" });
-    } catch (err) {
-        logger.error("auth.verify-reset-token.error", { error: err.message, stack: err.stack, requestId: req.id });
-        res.status(500).json({ success: false, message: "Internal Server Error" });
+        logger.error("auth.forgot-password.error", { error: err.message, stack: err.stack, requestId: req.id });
+        return res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 }
 

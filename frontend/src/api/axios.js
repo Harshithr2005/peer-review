@@ -4,7 +4,8 @@ const apiBaseUrl = (import.meta.env.VITE_REACT_APP_BACKEND_URL || window.locatio
 
 const api = axios.create({
   baseURL: apiBaseUrl,
-  withCredentials: true
+  withCredentials: true,
+  timeout: 10000
 });
 
 const refreshClient = axios.create({
@@ -18,9 +19,7 @@ const shouldSkipRefresh = (url) => {
   return (
     url.includes('/api/auth/login') ||
     url.includes('/api/auth/register') ||
-    url.includes('/api/auth/verify') ||
-    url.includes('/api/auth/forgot-password') ||
-    url.includes('/api/auth/reset-password')
+    url.includes('/api/auth/forgot-password')
   );
 };
 

@@ -44,7 +44,7 @@ function EvaluateForm({ project, maxMarks }) {
 
         init();
 
-        let interval = setInterval(getComments, 5000); // 5s interval for production
+        let interval = setInterval(getComments, 3000);
 
         return () => clearInterval(interval);
 

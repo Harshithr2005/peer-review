@@ -68,9 +68,13 @@ function Register() {
                const data = res.data;
 
                if (data.success) {
-                    navigate("/verify/email", {
-                         state: { email: form.email }
-                    });
+                    if (data.user?.role === 'student') {
+                         navigate('/student/dashboard');
+                    } else if (data.user?.role === 'admin') {
+                         navigate('/admin/dashboard');
+                    } else {
+                         navigate('/login');
+                    }
                     toast.success("Successfully Registered!");
                }
           } catch (err) {

@@ -24,36 +24,50 @@ function ClassroomPage() {
   const [roomCode, setRoomCode] = useState("");
 
   useEffect(() => {
+
+    let interval;
+    let isFetching = false;
+
     const getRoomData = async () => {
+
+      // prevent duplicate requests
+      if (isFetching) return;
+
+      // stop when tab inactive
+      if (document.hidden) return;
+
       try {
+        isFetching = true;
+
         const res = await api.get(`/api/admin/getRoomData/${roomId}`);
 
         const data = res.data;
+
         setRoom(data.room);
         setProjects(data.projects);
         setRoomCode(data.room.roomCode);
 
       } catch (err) {
+
         console.error(err);
-        if (err.response && err.response.status === 401) {
-          toast.error("Session expired. Logging out...");
+
+        if (err.response?.status === 401) {
+          toast.error("Session expired");
           navigate('/login');
-        } else {
-          toast.error("Something error occurred!");
         }
 
       } finally {
+        isFetching = false;
         setLoading(false);
       }
-    }
+    };
 
     getRoomData();
 
-    let interval = setInterval(getRoomData, 5000);
+    interval = setInterval(getRoomData, 5000);
 
-    return () => {
-      clearInterval(interval);
-    };
+    return () => clearInterval(interval);
+
   }, [roomId, navigate]);
 
   let openRoom = async () => {

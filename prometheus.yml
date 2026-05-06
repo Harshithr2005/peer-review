@@ -3,5 +3,10 @@ global:
 
 scrape_configs:
   - job_name: 'peer-review-backend'
+
+    scheme: https
+    metrics_path: /metrics
+
     static_configs:
-      - targets: ['host.docker.internal:3000']
+      - targets:
+          - 'peer-review-backend-r75l.onrender.com'

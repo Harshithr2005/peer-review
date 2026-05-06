@@ -78,7 +78,7 @@ module.exports.openClassroom = async (req, res) => {
         let code = uuidv4().slice(0, 6).toUpperCase();
         room.roomCode = code;
         room.status = "OPEN";
-        room.participants = []; // Clear participants to ensure a fresh session
+        room.participants = [];
         await room.save();
 
         res.status(200).json({ success: true, code: code });
@@ -95,6 +95,7 @@ module.exports.closeClassroom = async (req, res) => {
 
         room.roomCode = "";
         room.status = "CLOSED";
+        room.participants = [];
         await room.save();
 
         res.status(200).json({ success: true, code: room.roomCode, message: "Room Closed Successfully" });
@@ -346,7 +347,7 @@ module.exports.getClassroomData = async (req, res) => {
             })
             .populate({
                 path: 'projects',
-                select: 'title description student type members avgMarks submittedAt', // No unnecessary fields
+                select: 'title description student type members avgMarks submittedAt', 
                 populate: {
                     path: 'student',
                     select: 'name usn'

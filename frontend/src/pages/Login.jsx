@@ -44,10 +44,7 @@ function Login() {
         }
         toast.success("Welcome back!");
       } else {
-        navigate("/verify/email", {
-          state: { email: form.email }
-        });
-        toast.error(data.message);
+        toast.error(data.message || "Login failed. Please check your credentials.");
       }
     } catch (err) {
       const message = err.response?.data?.message || "Login failed. Please check your connection.";
@@ -113,7 +110,7 @@ function Login() {
             />
           </div>
 
-          <Link to="/login/forgotpassword" className="text-end hover:underline text-sm">Forgot password?</Link>
+            <Link to="/login/forgotpassword" className="text-end hover:underline text-sm">Forgot password?</Link>
 
           {/* Login Button */}
           <button

@@ -81,6 +81,7 @@ function AddProject({ onClose }) {
 
             if (res.data.success) {
                 toast.success('Project added successfully!');
+                setMembers([]);
                 onClose();
             }
         } catch (err) {

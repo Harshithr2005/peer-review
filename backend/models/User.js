@@ -32,27 +32,6 @@ let userSchema = mongoose.Schema({
           required: true
      },
 
-     // is email verified
-     isVerified: {
-          type: Boolean,
-          default: false,
-          index: true
-     },
-
-     // token (otp)
-     verificationToken: {
-          type: String,
-          index: true
-     },
-     verificationTokenExpires: Date,
-
-     // Verify email while reset password
-     resetPasswordToken: {
-          type: String,
-          index: true
-     },
-     resetPasswordExpires: Date,
-
      // Refresh token (hashed)
      refreshTokenHash: String,
      refreshTokenExpires: Date,
@@ -73,8 +52,5 @@ let userSchema = mongoose.Schema({
           }
      ]
 });
-
-// Add index for faster login/auth
-userSchema.index({ email: 1, isVerified: 1 });
 
 module.exports = mongoose.model('User', userSchema);

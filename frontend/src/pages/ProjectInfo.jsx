@@ -13,6 +13,7 @@ function ProjectInfo() {
     const projectID = useParams().projectID;
     const roomID = useParams().roomID;
     const [project, setProject] = useState({});
+    const [room, setRoom] = useState();
     const [loading, setLoading] = useState(false);
     const [edit, setEdit] = useState(false);
     const [deleteProject, setDeleteProject] = useState(false);
@@ -49,6 +50,25 @@ function ProjectInfo() {
                 setLoading(false);
             }
         };
+
+        const getRoomData = async () => {
+            try {
+                const res = await api.get(`/api/admin/getRoomData/${roomID}`);
+
+                const data = res.data;
+                setRoom(data.room);
+
+            } catch (err) {
+                const message = err.response?.data?.message || "Failed to fetch project details";
+                toast.error(message);
+                navigate(`/admin/room/${roomID}`);
+
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        getRoomData();
 
         getProjectInfo();
     }, [projectID, roomID, navigate]);
@@ -188,24 +208,25 @@ function ProjectInfo() {
                                     Team Members
                                 </p>
 
-                                <div className="flex flex-wrap gap-2">
+                                <div className="flex flex-wrap gap-3">
                                     {project.members.map((member, index) => (
-                                        <span
-                                            key={member._id || index}
-                                            className="
-                                                flex items-center gap-2
-                                                px-3 py-1 rounded-full
-                                                bg-indigo-500/20 text-indigo-200
-                                                border border-indigo-400/30
-                                                text-xs font-medium
-                                                transition hover:bg-indigo-500/30
-                                            "
+                                        <div
+                                            key={index}
+                                            className="flex flex-wrap items-center gap-3 p-3 rounded-2xl bg-slate-900/40 border border-slate-700/40 backdrop-blur-md hover:bg-slate-800/50 transition-all duration-300"
                                         >
-                                            <span className="w-5 h-5 flex items-center justify-center rounded-full bg-indigo-400/30 text-[10px] font-bold">
-                                                {member.name?.charAt(0)}
-                                            </span>
-                                            {member.usn}
-                                        </span>
+                                            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/20 border border-emerald-400/30">
+                                                <span className="text-lg">👤</span>
+                                                <span className="text-emerald-100 font-medium">
+                                                    {member?.name}
+                                                </span>
+                                            </div>
+
+                                            <div className="px-4 py-2 rounded-full bg-red-500/20 border border-red-400/30">
+                                                <span className="text-amber-100 font-medium">
+                                                    USN: {member?.usn}
+                                                </span>
+                                            </div>
+                                        </div>
                                     ))}
                                 </div>
                             </div>
@@ -223,13 +244,33 @@ function ProjectInfo() {
                     {project?.reviews && project?.reviews.length > 0 ? (
                         <div className="space-y-6">
 
-                            <div className="flex items-center justify-between md:p-6 p-4 rounded-xl bg-green-500/10 border border-green-400/30">
-                                <span className="text-white/80 text-lg">
-                                    Average Marks
-                                </span>
-                                <span className="text-3xl font-bold text-green-300">
-                                    {project.avgMarks}
-                                </span>
+                            <div
+                                className="flex items-center justify-between md:p-6 p-4 rounded-2xl  bg-slate-900/40 border border-slate-700/40 backdrop-blur-md hover:bg-slate-800/50 transition-all duration-300 shadow-lg"
+                            >
+                                <div className="flex flex-col">
+                                    <span className="text-white/50 text-xs uppercase tracking-[2px] mb-1">
+                                        Reviews
+                                    </span>
+
+                                    <span className="text-2xl font-bold text-cyan-200">
+                                        {project.reviews.length}
+                                        <span className="text-white/40 text-lg font-medium">
+                                            {" "} / {room.participants.length + 1}
+                                        </span>
+                                    </span>
+                                </div>
+
+                                <div className="h-12 w-px bg-white/10 mx-6" />
+
+                                <div className="flex flex-col items-end">
+                                    <span className="text-white/50 text-xs uppercase tracking-[2px] mb-1">
+                                        Average Score
+                                    </span>
+
+                                    <span className="text-4xl font-extrabold text-emerald-300 drop-shadow-md">
+                                        {project.avgMarks}
+                                    </span>
+                                </div>
                             </div>
 
                             <div className="space-y-4">
@@ -243,7 +284,7 @@ function ProjectInfo() {
                                                 Reviewed by
                                             </span>
                                             <span className="text-indigo-300 font-semibold">
-                                                {review.reviewerID.name}
+                                                {room.createdBy === review.reviewerID._id ? "You" : review.reviewerID.name}
                                             </span>
                                         </div>
 
